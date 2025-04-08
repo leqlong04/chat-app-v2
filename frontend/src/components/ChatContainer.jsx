@@ -7,6 +7,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 import VideoCall from "./VideoCall";
+import { Trash2 } from "lucide-react";
 
 const ChatContainer = () => {
   const {
@@ -16,6 +17,7 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    deleteMessage,
   } = useChatStore();
   const { authUser, socket } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -104,15 +106,35 @@ const ChatContainer = () => {
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
-            <div className="chat-bubble flex flex-col">
-              {message.image && (
-                <img
-                  src={message.image}
-                  alt="Attachment"
-                  className="sm:max-w-[200px] rounded-md mb-2"
-                />
+            <div className="chat-bubble flex flex-col relative group">
+              {message.isRecalled ? (
+                <div className="italic text-opacity-70">
+                  {message.senderId === authUser._id 
+                    ? "Bạn đã thu hồi tin nhắn" 
+                    : "Tin nhắn đã bị thu hồi"}
+                </div>
+              ) : (
+                <>
+                  {message.image && (
+                    <img
+                      src={message.image}
+                      alt="Attachment"
+                      className="sm:max-w-[200px] rounded-md mb-2"
+                    />
+                  )}
+                  {message.text && <p>{message.text}</p>}
+                  
+                  {message.senderId === authUser._id && !message.isRecalled && (
+                    <button 
+                      onClick={() => deleteMessage(message._id)}
+                      className="absolute -top-2 -right-2 bg-error text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      title="Delete message"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </>
               )}
-              {message.text && <p>{message.text}</p>}
             </div>
           </div>
         ))}

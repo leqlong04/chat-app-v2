@@ -68,3 +68,41 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { id: messageId } = req.params;
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    // Check if the user is the sender of the message
+    if (message.senderId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "You can only delete your own messages" });
+    }
+
+    // Instead of deleting, mark as recalled and clear content
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageId,
+      { 
+        isRecalled: true,
+        text: null,
+        image: null 
+      },
+      { new: true }
+    );
+
+    // Notify the receiver about the recalled message
+    const receiverSocketId = getReceiverSocketId(message.receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("messageRecalled", updatedMessage);
+    }
+
+    res.status(200).json(updatedMessage);
+  } catch (error) {
+    console.log("Error in deleteMessage controller: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

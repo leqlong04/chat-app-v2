@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Edit, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [fullName, setFullName] = useState(authUser?.fullName || "");
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -19,6 +21,16 @@ const ProfilePage = () => {
       setSelectedImg(base64Image);
       await updateProfile({ profilePic: base64Image });
     };
+  };
+
+  const handleNameUpdate = async () => {
+    if (fullName === authUser.fullName) {
+      setIsEditingName(false);
+      return;
+    }
+    
+    await updateProfile({ fullName });
+    setIsEditingName(false);
   };
 
   return (
@@ -71,7 +83,44 @@ const ProfilePage = () => {
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullName}</p>
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="px-4 py-2.5 bg-base-200 rounded-lg border w-full"
+                    disabled={isUpdatingProfile}
+                  />
+                  <button 
+                    onClick={handleNameUpdate}
+                    className="btn btn-primary btn-sm"
+                    disabled={isUpdatingProfile}
+                  >
+                    Save
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setIsEditingName(false);
+                      setFullName(authUser.fullName);
+                    }}
+                    className="btn btn-outline btn-sm"
+                    disabled={isUpdatingProfile}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="px-4 py-2.5 bg-base-200 rounded-lg border flex justify-between items-center">
+                  <p>{authUser?.fullName}</p>
+                  <button 
+                    onClick={() => setIsEditingName(true)}
+                    className="btn btn-ghost btn-sm"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="space-y-1.5">
