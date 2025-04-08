@@ -11,7 +11,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "daisyui": "^4.12.23"
+    "daisyui": "^4.12.23",
+    "vite": "^6.2.5"
   },
   "dependencies": {
     "peerjs": "^1.5.4",
