@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# ✨ Full Stack Realtime Chat App ✨
-=======
->>>>>>> 05daddb (Update)
-
 Highlights:
 
 - 🌟 Tech stack: MERN + Socket.io + TailwindCSS + Daisy UI
@@ -15,7 +10,8 @@ Highlights:
 
 ### Setup .env file
 
-```js
+```jsgit status
+
 MONGODB_URI=...
 PORT=5001
 JWT_SECRET=...
